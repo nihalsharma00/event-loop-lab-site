@@ -24,22 +24,7 @@
     </div>
   </header>
 
-  <div class="toolbar">
-    <select class="example-select" id="exampleSelect"></select>
-    <button class="btn primary" id="runBtn">▶ Run this code</button>
-    <div class="sep"></div>
-    <button class="btn" id="resetBtn" title="Back to step 0">⟲ Reset</button>
-    <button class="btn" id="backBtn" title="Step back">⏮ Step</button>
-    <button class="btn play" id="playBtn" title="Play / Pause">▶ Play</button>
-    <button class="btn" id="fwdBtn" title="Step forward">Step ⏭</button>
-    <div class="sep"></div>
-    <div class="speed-wrap">
-      Speed
-      <input type="range" id="speedRange" min="0.5" max="3" step="0.25" value="0.75">
-      <span id="speedLabel">0.75×</span>
-    </div>
-    <div class="step-counter">Step <b id="stepNow">0</b> / <span id="stepTotal">0</span></div>
-  </div>
+
 
   <div class="panel-card code-panel">
     <h3>Code</h3>
@@ -56,7 +41,23 @@
   </div>
 
   <div class="main-grid">
-
+    <div class="toolbar">
+      <select class="example-select" id="exampleSelect"></select>
+      <button class="btn primary" id="runBtn">▶ Run this code</button>
+      <div class="sep"></div>
+      <button class="btn" id="resetBtn" title="Back to step 0">⟲ Reset</button>
+      <button class="btn" id="backBtn" title="Step back">⏮ Step</button>
+      <button class="btn play" id="playBtn" title="Play / Pause">▶ Play</button>
+      <button class="btn" id="fwdBtn" title="Step forward">Step ⏭</button>
+      <div class="sep"></div>
+      <div class="speed-wrap">
+        Speed
+        <input type="range" id="speedRange" min="0.5" max="3" step="0.25" value="0.75">
+        <span id="speedLabel">0.75×</span>
+      </div>
+      <div class="step-counter">Step <b id="stepNow">0</b> / <span id="stepTotal">0</span></div>
+    </div>
+    
     <div class="stage">
       <div class="zone zone-webapis">
         <h4><span class="sw" style="background:var(--cyan)"></span>Web APIs<small>browser-provided</small></h4>
