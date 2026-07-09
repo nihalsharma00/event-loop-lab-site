@@ -41,20 +41,21 @@
     <div class="step-counter">Step <b id="stepNow">0</b> / <span id="stepTotal">0</span></div>
   </div>
 
-  <div class="main-grid">
-    <div class="panel-card">
-      <h3>Code</h3>
-      <textarea id="codeInput" spellcheck="false"></textarea>
-      <div class="code-actions">
-        <button class="btn primary" id="runBtn2" style="flex:1;">▶ Run</button>
-      </div>
-      <div class="error-note" id="errorNote"></div>
-      <div class="supported-note">
-        Simulated subset: <code>console.log('text')</code>, <code>setTimeout(fn, ms)</code>, <code>Promise.resolve().then(fn)</code> chains,
-        <code>function</code> / <code>async function</code> declarations called as <code>name()</code>, and a single <code>await</code> per async function.
-        Variables inside <code>console.log</code> are shown as written, not evaluated.
-      </div>
+  <div class="panel-card code-panel">
+    <h3>Code</h3>
+    <textarea id="codeInput" spellcheck="false"></textarea>
+    <div class="code-actions">
+      <button class="btn primary" id="runBtn2" style="flex:1;">▶ Run</button>
     </div>
+    <div class="error-note" id="errorNote"></div>
+    <div class="supported-note">
+      Simulated subset: <code>console.log('text')</code>, <code>setTimeout(fn, ms)</code>, <code>Promise.resolve().then(fn)</code> chains,
+      <code>function</code> / <code>async function</code> declarations called as <code>name()</code>, and a single <code>await</code> per async function.
+      Variables inside <code>console.log</code> are shown as written, not evaluated.
+    </div>
+  </div>
+
+  <div class="main-grid">
 
     <div class="stage">
       <div class="zone zone-webapis">

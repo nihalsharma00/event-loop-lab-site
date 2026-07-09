@@ -131,11 +131,16 @@ select.example-select{
   flex:1;
   min-height:0;
   display:grid;
-  grid-template-columns:255px 1fr 250px;
+  grid-template-columns:1fr 250px;
   gap:14px;
 }
 @media (max-width:1180px){
-  .main-grid{grid-template-columns:225px 1fr 210px;}
+  .main-grid{grid-template-columns:1fr 210px;}
+}
+
+.code-panel {
+  flex: none;
+  margin-bottom: 14px;
 }
 
 .panel-card{
@@ -162,8 +167,8 @@ select.example-select{
 /* code panel */
 textarea#codeInput{
   width:100%;
-  flex:1;
-  min-height:0;
+  flex: none;
+  height:160px;
   background:#0c0f18;
   color:#d8e0ee;
   border:1px solid var(--line);
