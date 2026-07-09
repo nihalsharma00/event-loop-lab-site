@@ -1,4 +1,4 @@
-﻿/* ======================================================================
+/* ======================================================================
    4. UI WIRING
    ====================================================================== */
 const el = id => document.getElementById(id);
@@ -71,7 +71,7 @@ function runSimulation(){
     trace = [];
     currentIndex = -1;
     clearStage();
-    errorNote.textContent = 'Î“ÃœÃ¡ ' + e.message;
+    errorNote.textContent = '⚠ ' + e.message;
     errorNote.style.display = 'block';
     renderHistory();
     updateCounters();
@@ -219,13 +219,13 @@ function stepBack(){
 function stopPlaying(){
   playing = false;
   clearTimeout(playTimer);
-  el('playBtn').textContent = 'Î“Ã»â•¢ Play';
+  el('playBtn').textContent = '▶ Play';
 }
 function startPlaying(){
   if (!trace.length) return;
   if (currentIndex >= trace.length - 1) currentIndex = 0;
   playing = true;
-  el('playBtn').textContent = 'Î“Ã…â•• Pause';
+  el('playBtn').textContent = '⏸ Pause';
   tick();
 }
 function tick(){
@@ -255,7 +255,7 @@ el('fwdBtn').addEventListener('click', () => { clearTimeout(autoplayTimer); stop
 el('playBtn').addEventListener('click', () => { clearTimeout(autoplayTimer); togglePlay(); });
 el('speedRange').addEventListener('input', e => {
   speed = parseFloat(e.target.value);
-  el('speedLabel').textContent = speed + 'â”œÃ¹';
+  el('speedLabel').textContent = speed + '×';
 });
 
 loadExample(0);

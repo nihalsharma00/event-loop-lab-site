@@ -140,6 +140,7 @@ select.example-select{
 
 .code-panel {
   flex: none;
+  height: auto;
   margin-bottom: 14px;
 }
 
