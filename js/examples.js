@@ -3,6 +3,25 @@
    ====================================================================== */
 const examples = [
   {
+    name: "Async/Await with fetch",
+    code:
+`async function loadData() {
+  let response1 = await fetch("customer.json");
+  let customer = await response1.json();
+
+  let response2 = await fetch("products.js");
+  let products = await response2.json();
+
+  let text = "";
+  text += JSON.stringify(customer);
+  text += JSON.stringify(products);
+  
+  console.log("Loaded all data!");
+}
+
+loadData();`
+  },
+  {
     name: "Sync vs Async basics",
     code:
 `console.log('Start');

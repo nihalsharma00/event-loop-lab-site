@@ -238,22 +238,6 @@ function callFunction(name){
   }
 }
 
-function suspendAndContinue(ctx, remaining){
-  const label = ctx.label;
-  snapshot(`"${label}" reaches an 'await'. It must pause here until the awaited value settles.`, 'await-hit');
-  enqueueMicrotask(label + ' (resume)', () => {
-    stack.push({ id: uid('f'), label });
-    snapshot(`"${label}" resumes on the Call Stack after the awaited value settles.`, 'push');
-    const suspendedAgain = execStatements(remaining, ctx);
-    if (!suspendedAgain){
-      stack.pop();
-      snapshot(`"${label}" completes and is popped off the Call Stack.`, 'pop');
-    }
-  });
-  stack.pop();
-  snapshot(`"${label}" suspends and is popped off the Call Stack; the rest of it is queued as a microtask.`, 'pop');
-}
-
 function execOne(stmt, ctx){
   stmt = stmt.trim();
   if (!stmt) return;
@@ -381,12 +365,18 @@ function execOne(stmt, ctx){
     return;
   }
 
-  const assign = stmt.match(/^([\w$]+)\s*=\s*(.*)$/);
+  const assign = stmt.match(/^([\w$]+)\s*([+\-*/]?=)\s*(.*)$/);
   if (assign) {
     try {
-      let valStr = assign[2];
+      let valStr = assign[3];
       if (valStr && valStr.endsWith(';')) valStr = valStr.slice(0, -1);
-      userEnv[assign[1]] = new Function('env', `with(env) { return ${valStr}; }`)(userEnv);
+      const op = assign[2];
+      const newVal = new Function('env', `with(env) { return ${valStr}; }`)(userEnv);
+      if (op === '=') userEnv[assign[1]] = newVal;
+      else if (op === '+=') userEnv[assign[1]] += newVal;
+      else if (op === '-=') userEnv[assign[1]] -= newVal;
+      else if (op === '*=') userEnv[assign[1]] *= newVal;
+      else if (op === '/=') userEnv[assign[1]] /= newVal;
     } catch(e) {}
     snapshot(`Runs: ${stmt}`, 'other');
     return;
@@ -413,10 +403,66 @@ function execOne(stmt, ctx){
 function execStatements(stmts, ctx){
   for (let i = 0; i < stmts.length; i++){
     const stmt = stmts[i].trim();
-    if (ctx.isAsync && /^(?:const|let|var)\s+[\w$]+\s*=\s*await\b|^await\b/.test(stmt)){
-      suspendAndContinue(ctx, stmts.slice(i + 1));
+    
+    const awaitMatch = stmt.match(/^(?:(?:let|const|var)\s+([\w$]+)\s*=\s*)?await\s+(.*)$/);
+    if (ctx.isAsync && awaitMatch){
+      const varName = awaitMatch[1];
+      const expr = awaitMatch[2];
+      const label = ctx.label;
+      snapshot(`"${label}" reaches an 'await'. It evaluates the expression and pauses.`, 'await-hit');
+      
+      const fetchMatch = matchNamedCall(expr, 'fetch');
+      if (fetchMatch) {
+         const url = fetchMatch.argsStr.trim();
+         const fetchLabel = `fetch(${url})`;
+         const id = uid('api_fetch');
+         webApis.push({ id, label: fetchLabel, delay: 500 });
+         webApiRunners.set(id, () => {
+           enqueueMicrotask(`Promise resolution: ${fetchLabel}`, () => {
+             if (varName) userEnv[varName] = { data: 'mock' };
+             stack.push({ id: uid('f'), label });
+             snapshot(`"${label}" resumes on the Call Stack after ${fetchLabel} settled.`, 'push');
+             const suspendedAgain = execStatements(stmts.slice(i + 1), ctx);
+             if (!suspendedAgain) {
+               stack.pop();
+               snapshot(`"${label}" completes and is popped off the Call Stack.`, 'pop');
+             }
+           });
+         });
+         snapshot(`Network request "${fetchLabel}" begins in Web APIs. The function is suspended.`, 'schedule-timer');
+         return true;
+      }
+      
+      const jsonMatch = expr.match(/^([\w$]+)\.json\(\)$/);
+      if (jsonMatch) {
+         const jsonLabel = `JSON parse (${jsonMatch[1]})`;
+         enqueueMicrotask(`Promise resolution: ${jsonLabel}`, () => {
+             if (varName) userEnv[varName] = { parsed: true };
+             stack.push({ id: uid('f'), label });
+             snapshot(`"${label}" resumes on the Call Stack after ${jsonLabel} settled.`, 'push');
+             const suspendedAgain = execStatements(stmts.slice(i + 1), ctx);
+             if (!suspendedAgain) {
+               stack.pop();
+               snapshot(`"${label}" completes and is popped off the Call Stack.`, 'pop');
+             }
+         });
+         snapshot(`"${jsonLabel}" processing begins. The function is suspended.`, 'schedule-microtask');
+         return true;
+      }
+      
+      enqueueMicrotask(label + ' (resume)', () => {
+        if (varName) userEnv[varName] = undefined;
+        stack.push({ id: uid('f'), label });
+        snapshot(`"${label}" resumes on the Call Stack after the awaited value settles.`, 'push');
+        const suspendedAgain = execStatements(stmts.slice(i + 1), ctx);
+        if (!suspendedAgain){
+          stack.pop();
+          snapshot(`"${label}" completes and is popped off the Call Stack.`, 'pop');
+        }
+      });
       return true;
     }
+    
     execOne(stmt, ctx);
   }
   return false;
